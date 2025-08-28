@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Festa Robotica</title>
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: #ffb6c1;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.3s;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background-image: radial-gradient(circle, #fff 12%, transparent 13%);
+  background-size: 60px 60px;
+  opacity: 0;
+  z-index: -1;
+}
+
+h1 {
+  font-size: 40px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, red, orange, yellow, green, blue, purple, pink);
+  background-size: 400% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 6s linear infinite, bounce 1.5s ease-in-out infinite;
+  -webkit-text-stroke: 1px black;
+  margin-bottom: 20px;
+  z-index: 1;
+  margin: 0;
+  padding: 20px 0;
+  margin-top: 9%;
+}
+
+@keyframes rainbow {0%{background-position:0% 50%;} 100%{background-position:100% 50%;}}
+@keyframes bounce {0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+
+/* Robot */
+.robot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.antenna { width:6px; height:40px; background:silver; border:2px solid black; position: relative;}
+.antenna::after {content:""; width:15px; height:15px; background:red; border-radius:50%; border:2px solid black; position:absolute; top:-15px; left:-4px; animation:blink 1s infinite alternate;}
+@keyframes blink {from{background:red;} to{background:yellow;}}
+.head { width:100px; height:100px; background:silver; border-radius:20px; border:3px solid black; position:relative; margin-top:5px;}
+.eye { width:20px; height:20px; background:black; border-radius:50%; border:2px solid black; position:absolute; top:28px;}
+.eye.left { left:20px;} .eye.right { right:20px;}
+.mouth { width:50px; height:25px; border-bottom:4px solid black; border-radius:0 0 50px 50px; position:absolute; bottom:18px; left:25px;}
+.body { width:120px; height:150px; background:gray; border-radius:10px; border:3px solid black; position:relative;}
+.arm { width:30px; height:100px; background:darkgray; border:3px solid black; position:absolute; top:20px; transform-origin: top center;}
+.arm.left { left:-30px;} .arm.right { right:-30px;}
+.legs { display:flex; justify-content:space-between; width:120px; margin-top:0;}
+.leg.left, .leg.right { width:40px; height:100px; background:darkgray; border-radius:10px; border:3px solid black; transform-origin: top center;}
+
+/* Palloncini */
+#balloon-container {position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden;}
+.balloon {position:absolute; bottom:-100px; border-radius:50%; opacity:0.9; animation:float 4s ease-in forwards;}
+@keyframes float { to { transform: translateY(-110vh); opacity:0;}}
+
+/* Pulsanti */
+#controls { display:flex; gap:10px; justify-content:center; margin-top:10px; z-index:1;}
+button { padding:10px 20px; font-size:18px; font-weight:bold; cursor:pointer; border:none; border-radius:10px; background:#ff0040; color:white; transition:transform 0.2s;}
+button:hover { transform:scale(1.1); }
+#playBtn { font-size:24px; margin-top:20px; }
+
+/* Animazioni robot */
+@keyframes body-move {0%{transform:rotate(-10deg);}50%{transform:rotate(10deg);}100%{transform:rotate(-10deg);}}
+@keyframes head-move {0%{transform:rotate(-15deg);}50%{transform:rotate(15deg);}100%{transform:rotate(-15deg);}}
+@keyframes robo-move-left-pose1 {0%{transform:rotate(-60deg);}50%{transform:rotate(60deg);}100%{transform:rotate(-60deg);}}
+@keyframes robo-move-left-pose2 {0%{transform:rotate(-30deg);}50%{transform:rotate(90deg);}100%{transform:rotate(-30deg);}}
+@keyframes robo-move-left-pose3 {0%{transform:rotate(-90deg);}50%{transform:rotate(0deg);}100%{transform:rotate(-90deg);}}
+@keyframes robo-move-left-pose4 {0%{transform:rotate(-45deg);}50%{transform:rotate(45deg);}100%{transform:rotate(-45deg);}}
+@keyframes robo-move-right-pose1 {0%{transform:rotate(60deg);}50%{transform:rotate(-60deg);}100%{transform:rotate(60deg);}}
+@keyframes robo-move-right-pose2 {0%{transform:rotate(30deg);}50%{transform:rotate(-90deg);}100%{transform:rotate(30deg);}}
+@keyframes robo-move-right-pose3 {0%{transform:rotate(90deg);}50%{transform:rotate(0deg);}100%{transform:rotate(90deg);}}
+@keyframes robo-move-right-pose4 {0%{transform:rotate(45deg);}50%{transform:rotate(-45deg);}100%{transform:rotate(45deg);}}
+@keyframes robo-step-left-pose1 {0%{transform:rotate(-45deg) translateY(0);}50%{transform:rotate(45deg) translateY(-50px);}100%{transform:rotate(-45deg) translateY(0);}}
+@keyframes robo-step-left-pose2 {0%{transform:rotate(-20deg) translateY(0);}50%{transform:rotate(60deg) translateY(-40px);}100%{transform:rotate(-20deg) translateY(0);}}
+@keyframes robo-step-left-pose3 {0%{transform:rotate(-60deg) translateY(0);}50%{transform:rotate(20deg) translateY(-45px);}100%{transform:rotate(-60deg) translateY(0);}}
+@keyframes robo-step-left-pose4 {0%{transform:rotate(-30deg) translateY(0);}50%{transform:rotate(50deg) translateY(-35px);}100%{transform:rotate(-30deg) translateY(0);}}
+@keyframes robo-step-right-pose1 {0%{transform:rotate(45deg) translateY(0);}50%{transform:rotate(-45deg) translateY(-50px);}100%{transform:rotate(45deg) translateY(0);}}
+@keyframes robo-step-right-pose2 {0%{transform:rotate(20deg) translateY(0);}50%{transform:rotate(-60deg) translateY(-40px);}100%{transform:rotate(20deg) translateY(0);}}
+@keyframes robo-step-right-pose3 {0%{transform:rotate(60deg) translateY(0);}50%{transform:rotate(-20deg) translateY(-45px);}100%{transform:rotate(60deg) translateY(0);}}
+@keyframes robo-step-right-pose4 {0%{transform:rotate(30deg) translateY(0);}50%{transform:rotate(-50deg) translateY(-35px);}100%{transform:rotate(30deg) translateY(0);}}
+
+#lyrics-container {
+  position:absolute;
+  right: -80px;
+  top: 70px;
+  width:300px;
+  max-height: 80vh;;
+  overflow:hidden;
+}
+#lyrics p{
+  color:transparent;
+  margin:5px 0;
+  transition: color 0.3;
+}
+#scrollText {
+  position: hidden;
+  top:100%;
+  transition: transform 100s linear;
+}
+#scrollText p { margin:5px 0; }
+
+.header-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+@media screen and (max-width: 600px) {
+  .header-container{
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  .robot  {
+    
+    margin-top: 1%;
+    margin-bottom: 10px;
+  }
+  h1 {
+    margin-top: 2
+px; 
+    text-align: center;
+    width: 90%;
+  }
+  .lyrics-container{
+  
+    width: 90%;
+    text-align: center;
+    margin-top: 30px;
+
+  }
+}
+
+
+
+
+</style>
+</head>
+<body>
+ <h1>E' qui la festa, alza il volume!</h1>
+ 
+<div class="header-container">
+  <div class="main-container">
+    <div class="robot">
+  <div class="antenna"></div>
+  </div>
+  
+ 
+</div>
+
+
+  <div class="head">
+    <div class="eye left"></div>
+    <div class="eye right"></div>
+    <div class="mouth"></div>
+  </div>
+  <div class="body">
+    <div class="arm left"></div>
+    <div class="arm right"></div>
+  </div>
+  <div class="legs">
+    <div class="leg left"></div>
+    <div class="leg right"></div>
+  </div>
+</div>
+
+<audio id="song" src="def juan-day.wav"></audio>
+
+<button id="playBtn">clicca qui</button>
+
+<div id="controls">
+  <button id="partyBtn">party</button>
+  <button id="fiestaBtn">fiesta</button>
+</div>
+
+<div id="balloon-container"></div>
+
+
+<!-- CONTENITORE KARAOKE -->
+<div class="lyrics-container">
+  <div id="lyrics"></div>
+</div>
+
+
+
+<!--
+<div id="lyrics-container">
+  <div id="scrollText">
+    <p>Today’s the day we light the flame</p>
+    <p>The candles dance</p>
+    <p>They spell your name</p>
+    <p>Juan</p>
+   <p>Raise your glass</p>
+    <p>Toast to the fun</p>
+    <p>Here’s to you</p>
+    <p>The one and only Juan</p>
+     <p>                     </p>
+    <p>Feliz Juan-Day</p>
+    <p>Let’s all cheer</p>
+    <p>The party’s loud</p>
+    <p>The vibe is clear</p>
+    <p>Feliz Juan-Day</p>
+    <p>Take the floor</p>
+    <p>It’s your day</p>
+    <p>Juan</p>
+    
+    
+  </div>
+</div>-->
+
+<script>
+const playBtn = document.getElementById('playBtn');
+const audio = document.getElementById("song");
+let dancing = false;
+let danceInterval;
+
+playBtn.addEventListener('click', ()=>{
+  if(dancing) return;
+  dancing = true;
+
+  audio.currentTime = 0;
+  audio.play();
+
+  const arms = document.querySelectorAll('.arm');
+  const legs = document.querySelectorAll('.leg');
+  const robot = document.querySelector('.robot');
+  const head = document.querySelector('.head');
+
+  const poses = ['pose1','pose2','pose3','pose4'];
+  let currentPose = 0;
+
+  danceInterval = setInterval(() => {
+    arms[0].style.animation = `robo-move-left-${poses[currentPose]} 1.5s infinite steps(2,end)`;
+    arms[1].style.animation = `robo-move-right-${poses[currentPose]} 1.5s infinite steps(2,end)`;
+    legs[0].style.animation = `robo-step-left-${poses[currentPose]} 1.5s infinite steps(2,end)`;
+    legs[1].style.animation = `robo-step-right-${poses[currentPose]} 1.5s infinite steps(2,end)`;
+    robot.style.animation = `body-move 1.5s infinite steps(2,end)`;
+    head.style.animation = `head-move 1.5s infinite steps(2,end)`;
+    currentPose = (currentPose + 1) % poses.length;
+  },1500);
+
+  // Scorrimento testo
+  const scrollText = document.getElementById('scrollText');
+  //scrollText.style.transform = 'translateY(-100%)';
+});
+
+// Quando la musica finisce
+audio.addEventListener('ended', ()=>{
+  clearInterval(danceInterval);
+  const arms = document.querySelectorAll('.arm');
+  const legs = document.querySelectorAll('.leg');
+  const robot = document.querySelector('.robot');
+  const head = document.querySelector('.head');
+
+  arms.forEach(a => a.style.animation = "none");
+  legs.forEach(l => l.style.animation = "none");
+  robot.style.animation = "none";
+  head.style.animation = "none";
+
+  const scrollText = document.getElementById('scrollText');
+  //scrollText.style.transform = 'translateY(0)'; // reset testo
+
+  dancing = false;
+});
+
+
+
+
+
+
+
+let fiestaInterval; // per gestire l'intervallo
+const fiestaDuration = 8000; // 8 secondi
+const fiestaColors = ["#ff9999", "#99ff99", "#9999ff", "#ffff99", "#ff99ff", "#99ffff"];
+
+const fiestaBtn = document.getElementById("fiestaBtn");
+
+fiestaBtn.addEventListener("click", () => {
+  // Se è già in corso, non fare nulla
+  if (fiestaInterval) return;
+
+  fiestaInterval = setInterval(() => {
+    const randomColor = fiestaColors[Math.floor(Math.random() * fiestaColors.length)];
+
+    // Sfondo con pois + colore
+    const backgroundStyle = `
+      repeating-radial-gradient(circle, white 0px, white 2px, transparent 3px, transparent 30px),
+      ${randomColor}
+    `;
+
+    // Applica sia a <html> che a <body>
+    document.documentElement.style.background = backgroundStyle;
+    document.documentElement.style.backgroundSize = "50px 50px";
+    document.documentElement.style.backgroundAttachment = "fixed";
+
+    document.body.style.background = backgroundStyle;
+    document.body.style.backgroundSize = "50px 50px";
+    document.body.style.backgroundAttachment = "fixed";
+  }, 400); // cambia colore ogni 100ms
+
+  // Ferma dopo 8 secondi
+  setTimeout(() => {
+    clearInterval(fiestaInterval);
+    fiestaInterval = null; // permetti nuovo click
+  }, fiestaDuration);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const balloonContainer = document.getElementById("balloon-container");
+
+
+partyBtn.addEventListener("click", () => {
+  const colors = [ "#FF6B6B", // rosso/corallo pastello
+  "#FFD93D", // giallo sole
+  "#6BCB77", // verde menta
+  "#4D96FF", // azzurro intenso
+  "#FF8C42", // arancione brillante
+  "#9D4EDD"  // viola acceso
+  // 
+]; // colori pastello
+  let balloonsCreated = 0;
+  const totalBalloons = 500;
+
+  const balloonInterval = setInterval(() => {
+    if (balloonsCreated >= totalBalloons) {
+      clearInterval(balloonInterval);
+      return;
+    }
+
+    const balloon = document.createElement("div");
+    balloon.classList.add("balloon");
+
+    // Posizione orizzontale casuale
+    balloon.style.left = Math.random() * 100 + "vh";
+
+    // Colore pastello casuale
+    balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+    // Dimensione casuale
+    const size = 20 + Math.random() * 30;
+    balloon.style.width = size + "px";
+    balloon.style.height = size * 1.2 + "px";
+
+    // Animazione
+    balloon.style.animation = "float 4s ease-in forwards";
+
+    // Aggiungi al contenitore
+    balloonContainer.appendChild(balloon);
+
+    // Rimuovi il palloncino dopo 4 secondi
+    setTimeout(() => balloon.remove(), 6000);
+
+    balloonsCreated++;
+  }, 20); // crea un palloncino ogni 150ms
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// --- Karaoke ---
+const Audio = document.getElementById("song");
+const lyricsContainer = document.getElementById("lyrics");
+
+// Carichiamo l'LRC (puoi metterlo in un file lyrics.lrc oppure inline)
+const lrcText = `[00:02.80]Today’s the day 
+[00:05.00]we light the flame
+[00:07.00]The candles dance
+[00:09.00]They spell your name
+[00:10.00]Juan
+[00:11.00]Raise your glass
+[00:13.00]Toast to the fun
+[00:15.00]Here’s to you
+[00:16.00]The one and only Juan
+[00:18.50]Feliz Juan-Day
+[00:20.90]Let’s all cheer
+[00:22.50]The party’s loud
+[00:24.70]The vibe is clear
+[00:26.50]Feliz Juan-Day
+[00:29.00]Take the floor
+[00:30.30]It’s your day
+[00:31.60]Juan
+[00:32.70]We want more
+`; 
+// 👈 esempio, qui incolli tutto il testo con i tempi
+
+// Parser LRC → array di {time, text}
+const lyrics = lrcText.split("\n").map(line=>{
+  const match = line.match(/\[(\d+):(\d+\.\d+)\](.*)/);
+  if(match){
+    const min = parseInt(match[1]);
+    const sec = parseFloat(match[2]);
+    return { time: min*60 + sec, text: match[3].trim() };
+  }
+}).filter(Boolean);
+
+// Generiamo le righe in HTML
+lyrics.forEach((l,i)=>{
+  const p = document.createElement("p");
+  p.textContent = l.text;
+  p.id = "line-"+i;
+  lyricsContainer.appendChild(p);
+});
+
+// Evidenzia riga a tempo
+Audio.addEventListener("timeupdate", ()=>{
+  const current = Audio.currentTime;
+  for(let i=0;i<lyrics.length;i++){
+    const thisLine = lyrics[i];
+    const nextLine = lyrics[i+1];
+    if(current >= thisLine.time && (!nextLine || current < nextLine.time)){
+      document.querySelectorAll("#lyrics p").forEach(p=>p.style.color="black");
+      document.getElementById("line-"+i).style.color="green"; // evidenzia
+      //document.getElementById("line-"+i).scrollIntoView({behavior:"smooth", block:"center"});
+      break;
+    }
+  }
+});
+
+
+</script>
+
+</body>
+</html>
